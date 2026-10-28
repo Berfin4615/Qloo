@@ -1,0 +1,36 @@
+import { Entity, Category } from "./types";
+// Synthetic associations for UI development. These are NOT recorded Qloo responses.
+const names: [string, Category][] = [
+  ["Interstellar", "movie"],
+  ["Radiohead", "artist"],
+  ["Dune", "book"],
+  ["Spider-Man: Into the Spider-Verse", "movie"],
+  ["Daft Punk", "artist"],
+  ["The Hobbit", "book"],
+  ["Arrival", "movie"],
+  ["Everything Everywhere All at Once", "movie"],
+  ["Inception", "movie"],
+  ["Spirited Away", "movie"],
+  ["Blade Runner 2049", "movie"],
+  ["Nils Frahm", "artist"],
+  ["M83", "artist"],
+  ["Bonobo", "artist"],
+  ["Björk", "artist"],
+  ["The Left Hand of Darkness", "book"],
+  ["The Dispossessed", "book"],
+  ["Foundation", "book"],
+  ["Piranesi", "book"],
+  ["Severance", "tv_show"],
+  ["Dark", "tv_show"],
+  ["The Expanse", "tv_show"],
+  ["Arcane", "tv_show"],
+  ["Outer Wilds", "videogame"],
+  ["Journey", "videogame"],
+  ["Portal 2", "videogame"],
+  ["Hades", "videogame"],
+];
+export const fixtures: Entity[] = names.map(([name, category], i) => ({
+  id: `fixture-${i}`,
+  name,
+  category,
+}));
