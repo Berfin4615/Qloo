@@ -40,16 +40,52 @@ export function parseEntities(payload: unknown, category?: Category): Entity[] {
       "Qloo returned an unexpected response format. No results were inferred.",
     );
   return rows.flatMap((r) => {
+    if (!r || typeof r !== "object") return [];
     const id = r.entity_id ?? r.id;
+    // Search uses types[]; Insights uses type="urn:entity" and subtype.
+    // Never let the generic Insights parent type hide its actual category.
     const type =
-      r.types?.find((t: string) => t.startsWith("urn:entity:")) ?? r.type;
+      r.subtype ??
+      r.types?.find((t: string) => t.startsWith("urn:entity:")) ??
+      r.type;
     const c = type?.replace("urn:entity:", "") ?? category;
+    const genres: string[] = Array.isArray(r.properties?.genres)
+      ? r.properties.genres
+          .filter(
+            (g: unknown) =>
+              typeof g === "string" && g.length > 0 && g.length <= 60,
+          )
+          .slice(0, 4)
+      : [];
+    const rawContributions =
+      r.query?.explainability?.["signal.interests.entities"];
+    const contributions = Array.isArray(rawContributions)
+      ? rawContributions
+          .flatMap((entry: { entity_id?: unknown; score?: unknown }) =>
+            typeof entry?.entity_id === "string" &&
+            typeof entry.score === "number" &&
+            Number.isFinite(entry.score) &&
+            entry.score > 0 &&
+            entry.score <= 1
+              ? [{ id: entry.entity_id, score: entry.score }]
+              : [],
+          )
+          .sort((a, b) => b.score - a.score)
+      : [];
     return typeof id === "string" &&
       /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id) &&
       typeof r.name === "string" &&
       categories.includes(c) &&
       (!category || c === category)
-      ? [{ id, name: r.name.slice(0, 200), category: c as Category }]
+      ? [
+          {
+            id,
+            name: r.name.slice(0, 200),
+            category: c as Category,
+            genres,
+            contributions,
+          },
+        ]
       : [];
   });
 }
@@ -127,13 +163,14 @@ export async function insights(
   category: Category,
   exclude: string[],
 ) {
-  return parseEntities(
-    await qloo("/v2/insights", {
-      "filter.type": `urn:entity:${category}`,
-      "signal.interests.entities": ids.join(","),
-      "filter.exclude.entities": exclude.join(","),
-      take: "30",
-    }),
-    category,
-  ).map(remember);
+  const params: Record<string, string> = {
+    "filter.type": `urn:entity:${category}`,
+    "signal.interests.entities": ids.join(","),
+    take: "30",
+    "feature.explainability": "true",
+  };
+  if (exclude.length) params["filter.exclude.entities"] = exclude.join(",");
+  return parseEntities(await qloo("/v2/insights", params), category).map(
+    remember,
+  );
 }

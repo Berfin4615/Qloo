@@ -52,7 +52,7 @@ function Constellation({
   const left = profiles?.[0].interests.slice(0, 3).map((e) => e.name) ?? [
     "Interstellar",
     "Radiohead",
-    "Dune",
+    "Dune (Dune, #1)",
   ];
   const right = profiles?.[1].interests.slice(0, 3).map((e) => e.name) ?? [
     "Spider-Verse",
@@ -306,7 +306,7 @@ export default function Home() {
         [
           ["Interstellar", "movie"],
           ["Radiohead", "artist"],
-          ["Dune", "book"],
+          ["Dune (Dune, #1)", "book"],
         ],
         [
           ["Spider-Man: Into the Spider-Verse", "movie"],
@@ -720,6 +720,25 @@ export default function Home() {
                           : "selected favorite"}
                       </span>
                     </div>
+                    {result.mode === "live" && !focus.shared && (
+                      <div className="influence-grid">
+                        {(["a", "b"] as const).map((side, i) => (
+                          <div key={side}>
+                            <span className="eyebrow">
+                              {profiles[i].name || `Person ${i + 1}`}’S
+                              CONTRIBUTING FAVORITES
+                            </span>
+                            <p>
+                              {focus.influences?.[side]?.length
+                                ? focus.influences[side]
+                                    .map((e) => e.name)
+                                    .join(" · ")
+                                : "Supported by this profile’s recommendation list; individual contributions unavailable."}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <details>
                       <summary>How we found this connection</summary>
                       <p>{focus.reason}</p>
@@ -732,10 +751,12 @@ export default function Home() {
                         {focus.sources.b.map((e) => e.name).join(", ")}.
                       </p>
                       <p>
-                        Inputs are profile-level evidence; no individual
-                        favorite-to-result relationship is asserted. Ranking
-                        uses reciprocal result positions and category diversity,
-                        not a Qloo compatibility score.
+                        Contributing favorites come from Qloo’s per-result
+                        explainability data, when available. Other inputs are
+                        research context. Contributions explain the
+                        recommendation; they do not establish a shared theme or
+                        compatibility percentage. Ranking uses result positions
+                        and category diversity.
                       </p>
                     </details>
                   </article>
@@ -789,7 +810,7 @@ export default function Home() {
                             ? "A favorite you already share."
                             : result.mode === "fixture"
                               ? "Synthetic overlapping recommendation."
-                              : "Appeared independently in research for both of you."}
+                              : b.reason}
                         </p>
                         <small>
                           Explore this together and compare your first

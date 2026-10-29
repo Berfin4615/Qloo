@@ -1228,3 +1228,37 @@ footer small {
 .agent-log {
   overflow-wrap: anywhere;
 }
+
+.influence-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.influence-grid > div {
+  padding: 13px;
+  background: #0d121b;
+  border: 1px solid #313047;
+  border-radius: 7px;
+}
+.influence-grid > div:last-child {
+  border-color: #29443e;
+}
+.influence-grid .eyebrow {
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.influence-grid p {
+  font-size: 11px;
+  color: #c1b6db;
+  line-height: 1.7;
+  margin-top: 7px;
+}
+.influence-grid > div:last-child p {
+  color: #a9d5c8;
+}
+@media (max-width: 700px) {
+  .influence-grid {
+    grid-template-columns: 1fr;
+  }
+}

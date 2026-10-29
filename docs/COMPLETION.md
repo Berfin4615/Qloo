@@ -11,7 +11,7 @@
 
 ## Executed verification
 
-- `npm test`: 8 unit tests passed, including missing/invalid key, mocked throttling and transport timeouts.
+- `npm test`: 13 unit tests passed, including Insights subtype parsing, per-result contribution parsing and profile isolation, missing-explanation fallback, distinct category-specific questions, missing/invalid key, mocked throttling and transport timeouts.
 - `npm run typecheck`: passed.
 - `npm run build`: production build passed.
 - `npm run test:e2e`: 2 browser tests passed. End-to-end offline discovery, evidence, rejection, API validation, music search, and mobile overflow assertions passed.
@@ -20,7 +20,7 @@
 
 ## Not verified / not completed
 
-- Authenticated live Qloo search, actual JSON response shape and live recommendation/refinement quality: awaiting QLOO_API_KEY.
+- Authenticated live Qloo search and actual JSON response shapes verified. A bug that discarded Insights records because it read `type` instead of `subtype` was fixed. Live research returned 30 candidates per profile in each of five categories. Demo profiles with zero identical inputs produced five shared recommendations: Electric Dreams, Norse Mythology, M83, Humans, and The Man Who Fell to Earth. Live exclusion, full browser discovery, evidence, rejection, and mobile overflow checks passed. These checks verify functionality, not subjective recommendation quality.
 - Public website and public GitHub repository: no authenticated deployment or repository creation access available. Local Git repository initialized; no remote or public URL exists.
 - Public anonymous access cannot be verified before deployment.
 

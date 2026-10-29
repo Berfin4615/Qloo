@@ -18,6 +18,8 @@ export type Entity = {
   name: string;
   category: Category;
   verification?: string;
+  genres?: string[];
+  contributions?: { id: string; score: number }[];
 };
 export type Profile = { name: string; interests: Entity[] };
 export type Bridge = {
@@ -28,6 +30,7 @@ export type Bridge = {
   shared: boolean;
   reason: string;
   sources: { a: Entity[]; b: Entity[] };
+  influences?: { a: Entity[]; b: Entity[] };
 };
 export type Discovery = {
   mode: "live" | "fixture";

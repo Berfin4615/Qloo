@@ -4,6 +4,7 @@ import { fixtures } from "@/lib/fixtures";
 import { insights, isVerified, ServiceError } from "@/lib/qloo";
 import { rankBridges, diversify } from "@/lib/agent";
 import { limit, errorResponse } from "@/lib/http";
+import { planConnection } from "@/lib/planner";
 const entity = z.object({
   id: z.string().max(80),
   name: z.string().min(1).max(200),
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
           );
           const cats = category ? [category] : [...categories];
           const warnings: string[] = [];
+          const researchCounts: string[] = [];
           const batches = [];
           for (const cat of cats) {
             try {
@@ -103,6 +105,9 @@ export async function POST(request: Request) {
                           .slice(index === 0 ? 0 : 1),
                       ),
                 ),
+              );
+              researchCounts.push(
+                `${cat}: ${results[0].length} and ${results[1].length} recommendations`,
               );
               batches.push(
                 rankBridges(
@@ -128,9 +133,14 @@ export async function POST(request: Request) {
               );
             }
           }
+          if (!researchCounts.length && warnings.length) {
+            throw new ServiceError(
+              "Cultural research could not be completed. Please try again. No connection assessment was made.",
+            );
+          }
           step(
             2,
-            `Compared independent result sets across ${cats.length} categories; retained only common entities.`,
+            `Compared independent result sets (${researchCounts.join("; ")}); retained only common entities.`,
           );
           const ranked = batches.flat().sort((a, b) => b.rank - a.rank);
           let bridges = diversify(ranked);
@@ -155,25 +165,13 @@ export async function POST(request: Request) {
             3,
             "Ranked by reciprocal result positions, prioritized category diversity, and applied feedback. Planning uses verified names only.",
           );
-          const names = bridges.map((b) => b.entity.name);
+          const plan = planConnection(bridges);
           const result: Discovery = {
             mode,
             bridges,
             trace,
             warnings,
-            questions: names
-              .slice(0, 3)
-              .map(
-                (n, i) =>
-                  [
-                    `If ${n} became your shared discovery tonight, what would each of you hope to find in it?`,
-                    `What would you introduce someone to first about ${n}, and what would you leave as a surprise?`,
-                    `Give ${n} a new title together. Where do your first ideas differ?`,
-                  ][i],
-              ),
-            challenge: names.length
-              ? `Spend 3 minutes exploring ${names[0]} together, then take 5 minutes each to share one detail you noticed. Use the final 2 minutes to choose whether to explore more.`
-              : "Choose one favorite from each profile. Spend 7 minutes introducing each other to it, then take a minute to name one difference you enjoyed. No Qloo-supported bridge was found.",
+            ...plan,
           };
           send({ result });
         } catch (e) {

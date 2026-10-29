@@ -3,7 +3,7 @@ import { Entity, Category } from "./types";
 const names: [string, Category][] = [
   ["Interstellar", "movie"],
   ["Radiohead", "artist"],
-  ["Dune", "book"],
+  ["Dune (Dune, #1)", "book"],
   ["Spider-Man: Into the Spider-Verse", "movie"],
   ["Daft Punk", "artist"],
   ["The Hobbit", "book"],
